@@ -1,111 +1,115 @@
 # Abeni
 
+# Docker Compose configuration for a microservices architecture with User, Task, and Notification services.
+# Includes RabbitMQ and separate PostgreSQL databases for each service.
+
 services:
   # User Service
   user-service:
-    build: ./user_service
-    container_name: user_service
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    build: ./user_service  # Build the Docker image using the Dockerfile in the user_service directory.
+    container_name: user_service  # Assign a unique container name for the User Service.
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"  # Run migrations and start the Django development server.
     volumes:
-      - ./user_service:/app
+      - ./user_service:/app  # Mount the local user_service directory into the container for live updates during development.
     ports:
-      - "8001:8000"
-    environment:
+      - "8001:8000"  # Map container's port 8000 to host's port 8001.
+    environment:  # Define environment variables for database and email configuration.
       DATABASE_NAME: user_db
       DATABASE_USER: postgres
       DATABASE_PASSWORD: 12345678
-      DATABASE_HOST: postgres-user
+      DATABASE_HOST: postgres-user  # PostgreSQL database service name for User Service.
       DATABASE_PORT: 5432
-      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_HOST: rabbitmq  # RabbitMQ service name for message queuing.
       RABBITMQ_PORT: 5672
       EMAIL_BACKEND: "django.core.mail.backends.smtp.EmailBackend"
       EMAIL_HOST: "smtp.gmail.com"
       EMAIL_HOST_USER: "amanuelmandefrow@gmail.com"
-      EMAIL_HOST_PASSWORD: "nrhcholmnxdhjocc"
+      EMAIL_HOST_PASSWORD: "nrhcholmnxdhjocc"  # Consider storing sensitive data in environment files or secrets.
       EMAIL_PORT: "2525"
       EMAIL_USE_TLS: "True"
       DEFAULT_FROM_EMAIL: "amanuelmandefrow@gmail.com"
-      SECRET_KEY: "mysharedsecretkey123" 
+      SECRET_KEY: "mysharedsecretkey123"  # Application's secret key (should be stored securely in production).
     depends_on:
-      - rabbitmq
-      - postgres-user
+      - rabbitmq  # Ensure RabbitMQ starts before this service.
+      - postgres-user  # Ensure the PostgreSQL database for User Service starts before this service.
 
   # Task Service
   task-service:
-    build: ./task_service
-    container_name: task_service
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    build: ./task_service  # Build the Docker image using the Dockerfile in the task_service directory.
+    container_name: task_service  # Assign a unique container name for the Task Service.
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"  # Run migrations and start the Django development server.
     volumes:
-      - ./task_service:/app
+      - ./task_service:/app  # Mount the local task_service directory into the container for live updates during development.
     ports:
-      - "8002:8000"
-    environment:
+      - "8002:8000"  # Map container's port 8000 to host's port 8002.
+    environment:  # Define environment variables for database and message queue configuration.
       DATABASE_NAME: task_db
       DATABASE_USER: postgres
       DATABASE_PASSWORD: 12345678
-      DATABASE_HOST: postgres-task
+      DATABASE_HOST: postgres-task  # PostgreSQL database service name for Task Service.
       DATABASE_PORT: 5432
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       SECRET_KEY: "mysharedsecretkey123"
     depends_on:
-      - rabbitmq
-      - postgres-task
+      - rabbitmq  # Ensure RabbitMQ starts before this service.
+      - postgres-task  # Ensure the PostgreSQL database for Task Service starts before this service.
 
   # Notification Service
   notification-service:
-    build: ./notification_service
-    container_name: notification_service
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    build: ./notification_service  # Build the Docker image using the Dockerfile in the notification_service directory.
+    container_name: notification_service  # Assign a unique container name for the Notification Service.
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"  # Run migrations and start the Django development server.
     volumes:
-      - ./notification_service:/app
+      - ./notification_service:/app  # Mount the local notification_service directory into the container for live updates during development.
     ports:
-      - "8003:8000"
-    environment:
+      - "8003:8000"  # Map container's port 8000 to host's port 8003.
+    environment:  # Define environment variables for database and message queue configuration.
       DATABASE_NAME: notification_db
       DATABASE_USER: postgres
       DATABASE_PASSWORD: 12345678
-      DATABASE_HOST: postgres-notification
+      DATABASE_HOST: postgres-notification  # PostgreSQL database service name for Notification Service.
       DATABASE_PORT: 5432
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
     depends_on:
-      - rabbitmq
-      - postgres-notification
+      - rabbitmq  # Ensure RabbitMQ starts before this service.
+      - postgres-notification  # Ensure the PostgreSQL database for Notification Service starts before this service.
 
   # RabbitMQ
   rabbitmq:
-    image: "rabbitmq:3-management"
+    image: "rabbitmq:3-management"  # Use RabbitMQ image with management UI enabled.
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672:5672"  # Default RabbitMQ port for messaging.
+      - "15672:15672"  # Management UI port for RabbitMQ.
 
   # PostgreSQL for User Service
   postgres-user:
-    image: postgres:13
-    environment:
+    image: postgres:13  # Use PostgreSQL version 13 for the User Service database.
+    environment:  # Database configuration for the User Service.
       POSTGRES_DB: user_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 12345678
     ports:
-      - "5435:5432"
+      - "5435:5432"  # Map container's port 5432 to host's port 5435.
 
   # PostgreSQL for Task Service
   postgres-task:
-    image: postgres:13
-    environment:
+    image: postgres:13  # Use PostgreSQL version 13 for the Task Service database.
+    environment:  # Database configuration for the Task Service.
       POSTGRES_DB: task_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 12345678
     ports:
-      - "5436:5432"
+      - "5436:5432"  # Map container's port 5432 to host's port 5436.
 
   # PostgreSQL for Notification Service
   postgres-notification:
-    image: postgres:13
-    environment:
+    image: postgres:13  # Use PostgreSQL version 13 for the Notification Service database.
+    environment:  # Database configuration for the Notification Service.
       POSTGRES_DB: notification_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 12345678
     ports:
-      - "5437:5432"
+      - "5437:5432"  # Map container's port 5432 to host's port 5437.
+
