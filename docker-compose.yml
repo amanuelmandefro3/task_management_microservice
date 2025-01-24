@@ -1,8 +1,8 @@
+
 # Abeni
 
 # Docker Compose configuration for a microservices architecture with User, Task, and Notification services.
 # Includes RabbitMQ and separate PostgreSQL databases for each service.
-
 services:
   # User Service
   user-service:
@@ -112,4 +112,5 @@ services:
       POSTGRES_PASSWORD: 12345678
     ports:
       - "5437:5432"  # Map container's port 5432 to host's port 5437.
+
 
